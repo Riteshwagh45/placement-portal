@@ -59,4 +59,14 @@ public class CompanyController {
 
         return "redirect:/companies";
     }
+
+    @GetMapping("")
+    public String showCompanies(Model model) {
+
+        model.addAttribute(
+                "companies",
+                companyRepository.findAll());
+
+        return "companies";
+    }
 }

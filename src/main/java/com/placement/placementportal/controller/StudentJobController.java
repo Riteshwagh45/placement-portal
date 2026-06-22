@@ -35,30 +35,38 @@ public class StudentJobController {
     public String viewJobs(
             HttpSession session,
             Model model,
-            @RequestParam(required = false)
-            String alreadyApplied) {
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String alreadyApplied) {
 
-        User user =
-                (User) session.getAttribute(
-                        "loggedUser");
+        User user = (User) session.getAttribute("loggedUser");
 
         if (user == null) {
-
             return "redirect:/login";
         }
 
-        List<Job> jobs =
-                jobRepository.findAll();
+        List<Job> jobs;
 
-        model.addAttribute(
-                "jobs",
-                jobs);
+        if (keyword != null && !keyword.trim().isEmpty()) {
+
+            jobs = jobRepository
+                    .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrCompanyNameContainingIgnoreCaseOrLocationContainingIgnoreCase(
+                            keyword,
+                            keyword,
+                            keyword,
+                            keyword
+                    );
+
+            model.addAttribute("keyword", keyword);
+
+        } else {
+
+            jobs = jobRepository.findAll();
+        }
+
+        model.addAttribute("jobs", jobs);
 
         if (alreadyApplied != null) {
-
-            model.addAttribute(
-                    "message",
-                    "You have already applied for this job!");
+            model.addAttribute("message", "You have already applied for this job!");
         }
 
         return "student-jobs";

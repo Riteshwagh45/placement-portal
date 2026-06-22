@@ -1,0 +1,537 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>AI Career Assistant - Placement Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --panel-dark: #1e293b;
+            --border-dark: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --user-bubble: #2563eb;
+            --ai-bubble: #334155;
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Fixed Navigation Header */
+        .chat-header {
+            height: 75px;
+            background-color: var(--panel-dark);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            flex-shrink: 0;
+        }
+
+        .header-title-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+
+        .header-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .header-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .btn-dashboard {
+            background-color: transparent;
+            border: 1px solid var(--border-dark);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-dashboard:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-color: var(--text-muted);
+            color: white;
+        }
+
+        /* Main Chat Area */
+        .chat-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Welcome Screen Component */
+        .welcome-screen {
+            text-align: center;
+            padding: 4rem 1rem;
+        }
+
+        .welcome-icon {
+            font-size: 3.5rem;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        .welcome-screen h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.5px;
+        }
+
+        .welcome-screen p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 500px;
+            margin: 0 auto 2.5rem auto;
+            line-height: 1.6;
+        }
+
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .topic-pill {
+            background-color: var(--panel-dark);
+            border: 1px solid var(--border-dark);
+            padding: 0.85rem;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-main);
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Chat Dynamic Bubble Layout */
+        .message-row {
+            display: flex;
+            margin-bottom: 1.5rem;
+            width: 100%;
+        }
+
+        .message-row.user-row {
+            justify-content: flex-end;
+        }
+
+        .message-row.ai-row {
+            justify-content: flex-start;
+        }
+
+        .bubble-wrapper {
+            max-width: 75%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-bubble {
+            padding: 0.85rem 1.25rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+            position: relative;
+        }
+
+        .user-row .message-bubble {
+            background-color: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .ai-row .message-bubble {
+            background-color: var(--ai-bubble);
+            color: var(--text-main);
+            border-bottom-left-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .bubble-meta {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+
+        .btn-copy {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            cursor: pointer;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .btn-copy:hover {
+            color: var(--text-main);
+        }
+
+        /* Thinking Loader */
+        .thinking-bubble {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+            padding: 0.5rem 0;
+        }
+
+        .spinner-dots {
+            display: inline-flex;
+            gap: 3px;
+        }
+
+        .spinner-dots span {
+            width: 6px;
+            height: 6px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+            display: inline-block;
+            animation: dot-blink 1.4s infinite both;
+        }
+
+        .spinner-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .spinner-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dot-blink {
+            0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+            40% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Sticky Fixed Input Footer Row */
+        .input-footer {
+            background-color: var(--bg-dark);
+            padding: 1rem 0 1.5rem 0;
+            flex-shrink: 0;
+        }
+
+        .input-container-box {
+            background-color: var(--panel-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 24px;
+            padding: 0.5rem 0.75rem 0.5rem 1.25rem;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+
+        .input-container-box:focus-within {
+            border-color: #6366f1;
+        }
+
+        .chat-textarea {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            resize: none;
+            width: 100%;
+            max-height: 160px;
+            padding: 0.5rem 0;
+            font-size: 0.95rem;
+            outline: none;
+            line-height: 1.4;
+        }
+
+        .chat-textarea::placeholder {
+            color: #64748b;
+        }
+
+        .btn-send {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-send:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-send i {
+            font-size: 1.35rem;
+            line-height: 1;
+        }
+
+        /* Responsiveness Adaptation Matrix */
+        @media (max-width: 767.98px) {
+            .chat-header { padding: 0 1rem; height: 65px; }
+            .chat-area { padding: 1rem 0; }
+            .topic-grid { grid-template-columns: 1fr 1fr; }
+            .welcome-screen h2 { font-size: 1.4rem; }
+            .message-bubble { font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="chat-header">
+    <div class="header-title-box">
+        <div class="header-icon">
+            <i class="bi bi-stars"></i>
+        </div>
+        <div>
+            <h1 class="header-title">AI Career Assistant</h1>
+            <p class="header-subtitle">Your Placement Learning Assistant</p>
+        </div>
+    </div>
+    <div>
+        <a href="/student-dashboard" th:href="@{/student-dashboard}" class="btn-dashboard">
+            <i class="bi bi-arrow-left"></i> <span>Dashboard</span>
+        </a>
+    </div>
+</header>
+
+<main class="chat-area" id="chatArea">
+    <div class="chat-container">
+
+        <div class="welcome-screen" id="welcomeScreen">
+            <i class="bi bi-cpu-fill welcome-icon"></i>
+            <h2>Welcome to AI Career Assistant 👋</h2>
+            <p>I'm here to help you with Java, Spring Boot, DSA, Resume Building, Interview Preparation, Aptitude and Placement Guidance.<br><br>Ask me anything to get started.</p>
+
+            <div class="topic-grid">
+                <div class="topic-pill">☕ Java</div>
+                <div class="topic-pill">🌱 Spring Boot</div>
+                <div class="topic-pill">💻 DSA</div>
+                <div class="topic-pill">📄 Resume</div>
+                <div class="topic-pill">🎯 Interview</div>
+                <div class="topic-pill">🚀 Placement</div>
+            </div>
+        </div>
+
+        <div id="messageStream" style="display: none;"></div>
+
+        <div class="message-row ai-row" id="thinkingIndicator" style="display: none;">
+            <div class="bubble-wrapper">
+                <div class="thinking-bubble">
+                    <span>Thinking</span>
+                    <div class="spinner-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<footer class="input-footer">
+    <div class="chat-container">
+        <div class="input-container-box">
+            <textarea class="chat-textarea" id="chatInput" rows="1" placeholder="Ask anything about Java, Spring Boot, DSA, Resume or Placements..."></textarea>
+            <button class="btn-send" id="sendBtn" title="Transmit Question String">
+                <i class="bi bi-arrow-up-short"></i>
+            </button>
+        </div>
+        <div class="text-center mt-2" style="font-size: 0.75rem; color: var(--text-muted);">
+            Powered by Gemini AI
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const chatInput = document.getElementById("chatInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const chatArea = document.getElementById("chatArea");
+        const welcomeScreen = document.getElementById("welcomeScreen");
+        const messageStream = document.getElementById("messageStream");
+        const thinkingIndicator = document.getElementById("thinkingIndicator");
+
+        // Textarea height alignment logic auto-grow adjustment
+        chatInput.addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 160) + "px";
+        });
+
+        // Enter submission processing intercept rules
+        chatInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                executePromptTransmission();
+            }
+        });
+
+        sendBtn.addEventListener("click", function() {
+            executePromptTransmission();
+        });
+
+        function executePromptTransmission() {
+            const textValue = chatInput.value.trim();
+            if (!textValue) return;
+
+            // Hide initial screen structure state
+            if (welcomeScreen.style.display !== "none") {
+                welcomeScreen.style.display = "none";
+                messageStream.style.display = "block";
+            }
+
+            // Append user entry immediately to display stream node matrix
+            appendMessageNode(textValue, "user");
+
+            // Clear state fields
+            chatInput.value = "";
+            chatInput.style.height = "auto";
+            autoScrollToBottom();
+
+            // Fire async context frame loader logic toggles
+            thinkingIndicator.style.display = "flex";
+            autoScrollToBottom();
+
+            // REST API Network Thread Fetch Operation Node
+            fetch("/api/ai/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompt: textValue })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Network cluster node exception encountered.");
+                return response.json();
+            })
+            .then(data => {
+                thinkingIndicator.style.display = "none";
+                if (data && data.answer) {
+                    appendMessageNode(data.answer, "ai");
+                } else {
+                    appendMessageNode("Error parsing backend data model structures.", "ai");
+                }
+                autoScrollToBottom();
+            })
+            .catch(error => {
+                thinkingIndicator.style.display = "none";
+                appendMessageNode("Failed to process request stream. Check local connection endpoints.", "ai");
+                autoScrollToBottom();
+            });
+        }
+
+        function appendMessageNode(text, sender) {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = `message-row ${sender}-row`;
+
+            const wrapperDiv = document.createElement("div");
+            wrapperDiv.className = "bubble-wrapper";
+
+            const bubbleDiv = document.createElement("div");
+            bubbleDiv.className = "message-bubble";
+            bubbleDiv.textContent = text;
+            wrapperDiv.appendChild(bubbleDiv);
+
+            if (sender === "ai") {
+                const metaDiv = document.createElement("div");
+                metaDiv.className = "bubble-meta";
+
+                const copyBtn = document.createElement("button");
+                copyBtn.className = "btn-copy";
+                copyBtn.innerHTML = '<i class="bi bi-copy"></i> Copy';
+                copyBtn.addEventListener("click", function() {
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.innerHTML = '<i class="bi bi-check2"></i> Copied';
+                        setTimeout(() => {
+                            this.innerHTML = '<i class="bi bi-copy"></i> Copy';
+                        }, 2000);
+                    });
+                });
+
+                metaDiv.appendChild(copyBtn);
+                wrapperDiv.appendChild(metaDiv);
+            }
+
+            rowDiv.appendChild(wrapperDiv);
+            messageStream.appendChild(rowDiv);
+        }
+
+        function autoScrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+    });
+</script>
+</body>
+</html>
+

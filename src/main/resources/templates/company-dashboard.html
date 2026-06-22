@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Company Dashboard - Placement Portal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-canvas: #f8fafc;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --radius-premium: 20px;
+
+            --welcome-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+            --ai-gradient: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+            --card-grad-1: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            --card-grad-2: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --card-grad-3: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --card-grad-4: linear-gradient(135deg, #ec4899 0%, #d01771 100%);
+
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 4px 12px -5px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 35px -5px rgba(79, 70, 229, 0.12);
+        }
+
+        * {
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-canvas);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(234, 88, 12, 0.03) 0px, transparent 50%);
+        }
+
+        /* Glassmorphic Components */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-premium);
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Top Welcome Hero Banner */
+        .welcome-card {
+            background: var(--welcome-gradient);
+            border-radius: var(--radius-premium);
+            color: white;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px -5px rgba(79, 70, 229, 0.3);
+            position: relative;
+            overflow: hidden;
+            border: none;
+        }
+
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -10%;
+            width: 320px;
+            height: 320px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .company-avatar-wrapper {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Statistics Metrics Layer */
+        .metric-card {
+            border: none;
+            border-radius: var(--radius-premium);
+            box-shadow: var(--shadow-sm);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 100%;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            right: -15px;
+            bottom: -15px;
+            font-size: 5rem;
+            opacity: 0.12;
+            font-family: "bootstrap-icons";
+        }
+
+        .metric-card.m1 { background: var(--card-grad-1); }
+        .metric-card.m1::after { content: "\f1ad"; }
+        .metric-card.m2 { background: var(--card-grad-2); }
+        .metric-card.m2::after { content: "\f64a"; }
+        .metric-card.m3 { background: var(--card-grad-3); }
+        .metric-card.m3::after { content: "\f5d2"; }
+        .metric-card.m4 { background: var(--card-grad-4); }
+        .metric-card.m4::after { content: "\f5ca"; }
+
+        .metric-count {
+            font-size: 2.25rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Operational Action Cards Grid */
+        .action-link {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .action-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.25s ease;
+            box-shadow: var(--shadow-sm);
+            height: 100%;
+        }
+
+        .action-card:hover {
+            border-color: #4f46e5;
+            background: #fafafa;
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .action-icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .act-add { background: rgba(79, 70, 229, 0.08); color: #4f46e5; }
+        .act-jobs { background: rgba(16, 185, 129, 0.08); color: #10b981; }
+        .act-view { background: rgba(245, 158, 11, 0.08); color: #f59e0b; }
+        .act-profile { background: rgba(6, 182, 212, 0.08); color: #06b6d4; }
+        .act-ai { background: rgba(234, 88, 12, 0.08); color: #ea580c; }
+        .act-logout { background: rgba(239, 68, 68, 0.08); color: #ef4444; }
+
+        /* Premium Interactive Table Systems */
+        .table-responsive-wrapper {
+            border-radius: var(--radius-premium);
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem 1.25rem;
+            border: none;
+        }
+
+        .table tbody tr {
+            background-color: transparent;
+            transition: background-color 0.15s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(79, 70, 229, 0.02) !important;
+        }
+
+        .table td {
+            padding: 1rem 1.25rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        /* Badges & Micro Layout Elements */
+        .status-pill {
+            padding: 0.35rem 0.75rem;
+            font-weight: 500;
+            font-size: 0.75rem;
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .student-list-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .student-list-item:last-child {
+            border-bottom: none;
+        }
+
+        .student-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* AI Hiring Assistant Spotlight Card */
+        .ai-featured-card {
+            background: var(--ai-gradient);
+            color: white;
+            border: none;
+            border-radius: var(--radius-premium);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px -5px rgba(234, 88, 12, 0.25);
+        }
+
+        .ai-featured-card::before {
+            content: '🤖';
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            font-size: 10rem;
+            opacity: 0.1;
+            transform: rotate(-15deg);
+            pointer-events: none;
+        }
+
+        .btn-ai-open {
+            background: #ffffff;
+            color: #ea580c;
+            font-weight: 600;
+            border: none;
+            padding: 0.65rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-ai-open:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* Footer Infrastructure */
+        footer {
+            background: #0f172a;
+            color: #94a3b8;
+            border-top: 1px solid #1e293b;
+        }
+
+        /* Responsive Layout Matrix Override */
+        @media (max-width: 991.98px) {
+            .sidebar-col {
+                order: -1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-5">
+
+    <div class="welcome-card mb-4 d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3">
+        <div class="text-start">
+            <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1.5 mb-2 small border border-white border-opacity-10">Recruiter Space</span>
+            <h2 class="fw-bold m-0 text-white">Welcome Back, <span th:text="${companyName}">Enterprise Partner</span> 👋</h2>
+            <p class="text-white-50 m-0 mt-1 small"><i class="bi bi-envelope me-1"></i> <span th:text="${companyEmail}">recruiter@corporate.com</span></p>
+        </div>
+        <div class="company-avatar-wrapper align-self-start align-self-sm-center">
+            <i class="bi bi-building"></i>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-lg-3">
+            <div class="metric-card m1">
+                <span class="text-white-50 small fw-medium text-uppercase tracking-wider d-block">Total Jobs Posted</span>
+                <div class="metric-count mt-2" th:text="${totalJobs}">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="metric-card m2">
+                <span class="text-white-50 small fw-medium text-uppercase tracking-wider d-block">Active Vacancies</span>
+                <div class="metric-count mt-2" th:text="${activeJobs}">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="metric-card m3">
+                <span class="text-white-50 small fw-medium text-uppercase tracking-wider d-block">Total Applicants</span>
+                <div class="metric-count mt-2" th:text="${totalApplicants}">0</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="metric-card m4">
+                <span class="text-white-50 small fw-medium text-uppercase tracking-wider d-block">Selected Students</span>
+                <div class="metric-count mt-2" th:text="${selectedStudents}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-8">
+            <div class="d-flex flex-column gap-5">
+
+                <div>
+                    <h5 class="fw-bold text-dark mb-3"><i class="bi bi-grid-1x2-fill text-primary me-2"></i>Quick Administration</h5>
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <a href="/jobs/add" class="action-link">
+                                <div class="action-card">
+                                    <div class="action-icon-box act-add"><i class="bi bi-plus-circle-fill"></i></div>
+                                    <span class="fw-semibold small">Post New Job</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <a href="/jobs" class="action-link">
+                                <div class="action-card">
+                                    <div class="action-icon-box act-jobs"><i class="bi bi-collection-fill"></i></div>
+                                    <span class="fw-semibold small">My Jobs</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <a href="/applications" class="action-link">
+                                <div class="action-card">
+                                    <div class="action-icon-box act-view"><i class="bi bi-people-fill"></i></div>
+                                    <span class="fw-semibold small">View Applicants</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <a href="/company-dashboard" class="action-link">
+                                <div class="action-card">
+                                    <div class="action-icon-box act-profile"><i class="bi bi-building-gear"></i></div>
+                                    <span class="fw-semibold small">Company Profile</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <a href="/ai" class="action-link">
+                                <div class="action-card">
+                                    <div class="action-icon-box act-ai"><i class="bi bi-cpu-fill"></i></div>
+                                    <span class="fw-semibold small">AI Hiring Assistant</span>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <a href="/logout" class="action-link">
+                                <div class="action-card">
+                                    <div class="action-icon-box act-logout"><i class="bi bi-box-arrow-right"></i></div>
+                                    <span class="fw-semibold small">Logout</span>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass-card border-0">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-1 d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold m-0 text-dark"><i class="bi bi-briefcase-fill text-primary me-2"></i>Recent Corporate Postings</h5>
+                        <span class="badge bg-light text-secondary border border-secondary border-opacity-10 px-2 py-1 rounded">Live Track</span>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="table-responsive-wrapper">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                <tr>
+                                    <th>Job Title</th>
+                                    <th>Location</th>
+                                    <th>Salary</th>
+                                    <th>Applications</th>
+                                    <th>Status</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="job : ${recentJobs}">
+                                    <td class="fw-semibold text-dark" th:text="${job.title}">Software Engineer</td>
+                                    <td class="text-secondary" th:text="${job.location}">Remote / Pune</td>
+                                    <td class="fw-medium text-success" th:text="${job.salary}">12 LPA</td>
+                                    <td>
+                                        <span class="badge bg-primary-subtle text-primary rounded-pill px-2.5 py-1">Active</span>
+                                    </td>
+                                    <td>
+                                        <span class="status-pill bg-success-subtle text-success"><i class="bi bi-check-circle-fill"></i> Open</span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center gap-2">
+                                            <a th:href="@{'/jobs/edit/' + ${job.id}}" class="btn btn-light btn-sm text-dark border shadow-sm" title="Edit Properties"><i class="bi bi-pencil-square"></i></a>
+                                            <a th:href="@{'/applications/job/' + ${job.id}}" class="btn btn-light btn-sm text-primary border shadow-sm" title="Applicants Mapping"><i class="bi bi-eye"></i></a>
+                                            <a th:href="@{'/jobs/delete/' + ${job.id}}" class="btn btn-light btn-sm text-danger border shadow-sm" onclick="return confirm('Delete vacancy?')" title="Purge Record"><i class="bi bi-trash3-fill"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(recentJobs)}">
+                                    <td colspan="6" class="text-center text-muted py-4 small">No recorded vacancies index fields active.</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card glass-card border-0">
+                    <div class="card-header bg-transparent border-0 pt-4 px-4 pb-1">
+                        <h5 class="fw-bold m-0 text-dark"><i class="bi bi-person-lines-fill text-primary me-2"></i>Incoming Pipeline Applicants</h5>
+                    </div>
+                    <div class="card-body px-4 pb-4 pt-2">
+                        <div class="d-flex flex-column">
+                            <div class="student-list-item d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3" th:each="app : ${recentApplicants}">
+                                <div class="d-flex align-items-center gap-3 text-start">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="student-avatar" alt="Student Pic">
+                                    <div>
+                                        <h6 class="fw-bold m-0 text-dark" th:text="${app.studentName}">Student Development Profile</h6>
+                                        <small class="text-muted" th:text="'Role: ' + ${app.jobTitle}">Applied Job Title</small>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center flex-wrap gap-2 justify-content-sm-end">
+                                    <a th:href="@{'/' + ${app.resumeUrl}}" class="btn btn-sm btn-light border text-secondary" target="_blank"><i class="bi bi-file-earmark-pdf text-danger"></i> Resume</a>
+                                    <span class="status-pill bg-warning-subtle text-warning-dark px-2 py-1" th:text="${app.status}">APPLIED</span>
+                                    <a th:href="@{'/students/view/' + ${app.studentId}}" class="btn btn-sm btn-primary px-3 rounded-2">Profile</a>
+                                </div>
+                            </div>
+                            <div th:if="${#lists.isEmpty(recentApplicants)}" class="text-center text-muted py-3 small">No incoming pipelines found.</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-lg-4 sidebar-col">
+            <div class="d-flex flex-column gap-4">
+
+                <div class="card glass-card p-4 border-0">
+                    <h5 class="fw-bold text-dark mb-4 border-bottom pb-2"><i class="bi bi-info-circle-fill text-primary me-2"></i>Company Parameters</h5>
+
+                    <div class="d-flex flex-column gap-3 text-start">
+                        <div>
+                            <label class="text-muted small fw-medium text-uppercase d-block">Legal Trading Entity</label>
+                            <span class="fw-semibold text-dark" th:text="${companyName}">Company Corporation Ltd.</span>
+                        </div>
+                        <hr class="my-1 opacity-25">
+                        <div>
+                            <label class="text-muted small fw-medium text-uppercase d-block">Communications Email Address</label>
+                            <span class="fw-semibold text-dark text-break" th:text="${companyEmail}">corporate@enterprise.org</span>
+                        </div>
+                        <hr class="my-1 opacity-25">
+                        <div>
+                            <label class="text-muted small fw-medium text-uppercase d-block">Headquarters / Operational Location</label>
+                            <span class="fw-semibold text-secondary" th:text="${companyLocation}">Silicon Valley / Pune Core</span>
+                        </div>
+                        <hr class="my-1 opacity-25">
+                        <div>
+                            <label class="text-muted small fw-medium text-uppercase d-block">About Corporate Matrix</label>
+                            <p class="small text-muted mb-0 mt-1" th:text="${companyDescription}">Enterprise computing grid node mapping cloud architecture solutions.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card ai-featured-card p-4">
+                    <h4 class="fw-bold text-white mb-2">🤖 AI Hiring Assistant</h4>
+                    <p class="small text-white-50 mb-4">Leverage machine optimization to instantly parse technical screening queries.</p>
+                    <ul class="list-unstyled small d-flex flex-column gap-2 text-white-75 mb-4">
+                        <li><i class="bi bi-patch-check-fill text-warning me-2"></i> Generate structural interview modules</li>
+                        <li><i class="bi bi-patch-check-fill text-warning me-2"></i> Match technical parameter skill indexes</li>
+                        <li><i class="bi bi-patch-check-fill text-warning me-2"></i> Compute candidates hiring matrices</li>
+                    </ul>
+                    <a href="/ai" class="action-link"><button class="btn-ai-open w-100 d-flex align-items-center justify-content-center gap-2">Open AI Assistant <i class="bi bi-arrow-right-short fs-5"></i></button></a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<footer class="text-center py-4 px-3 mt-auto">
+    <div class="container-fluid">
+        <p class="mb-1 text-white fw-medium small">Campus Placement Portal &bull; Corporate Enterprise Space</p>
+        <p class="small mb-0 text-muted" style="font-size: 0.8rem;">
+            Configured with architectural code parity using:
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 mx-1 border border-secondary border-opacity-10">Java</span>
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 mx-1 border border-secondary border-opacity-10">Spring Boot</span>
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 mx-1 border border-secondary border-opacity-10">MySQL</span>
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 mx-1 border border-secondary border-opacity-10">Bootstrap 5</span>
+            <span class="badge bg-secondary bg-opacity-15 text-white-50 mx-1 border border-secondary border-opacity-10">Thymeleaf</span>
+        </p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

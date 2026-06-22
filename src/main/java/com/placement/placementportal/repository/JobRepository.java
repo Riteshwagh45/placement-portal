@@ -3,7 +3,15 @@ package com.placement.placementportal.repository;
 import com.placement.placementportal.entity.Job;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface JobRepository
-        extends JpaRepository<Job, Long> {
+import java.util.List;
+
+public interface JobRepository extends JpaRepository<Job, Long> {
+
+    List<Job> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCaseOrCompanyNameContainingIgnoreCaseOrLocationContainingIgnoreCase(
+            String title,
+            String description,
+            String companyName,
+            String location
+    );
 
 }

@@ -75,25 +75,8 @@ public class HomeController {
         return "students";
     }
 
-    @GetMapping("/companies")
-    public String companies(Model model) {
 
-        model.addAttribute(
-                "companies",
-                companyRepository.findAll());
 
-        return "companies";
-    }
-
-    @GetMapping("/jobs")
-    public String jobs(Model model) {
-
-        model.addAttribute(
-                "jobs",
-                jobRepository.findAll());
-
-        return "jobs";
-    }
 
 
 }

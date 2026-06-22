@@ -11,14 +11,19 @@ public class Company {
     private Long id;
 
     private String companyName;
+
+    private String email;
+
     private String location;
+
     private String description;
 
     public Company() {
     }
 
-    public Company(String companyName, String location, String description) {
+    public Company(String companyName, String email, String location, String description) {
         this.companyName = companyName;
+        this.email = email;
         this.location = location;
         this.description = description;
     }
@@ -37,6 +42,14 @@ public class Company {
 
     public void setCompanyName(String companyName) {
         this.companyName = companyName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getLocation() {
